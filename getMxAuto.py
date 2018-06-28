@@ -1,13 +1,13 @@
 import dns.resolver
 
 def main():
-    domainToMxSetMap = getMxAndWriteFile()
+    domainToMxSetMap = getMxAndWriteFile('domains.txt')
     graphmlLines = convertToGraphmlLines(domainToMxSetMap)
     
     writeLinesToFile('domainMx.graphml', graphmlLines)
     
-    gmlLines = convertToGmlLines(domainToMxSetMap)
-    writeLinesToFile('domainMx.gml', gmlLines)
+    #gmlLines = convertToGmlLines(domainToMxSetMap)
+    #writeLinesToFile('domainMx.gml', gmlLines)
     
 def writeLinesToFile(filename, lines):
     outputFile = open(filename,'w')
@@ -175,7 +175,7 @@ def getMxAndWriteFile(domainsFilename):
     #Write CSV header line
     header = 'domain,mx'
     print(header)
-    outputFile.write(header)
+    outputFile.write(header + '\n')
 
     domainToMxSetMap = {}
     
@@ -210,7 +210,7 @@ def getMxAndWriteFile(domainsFilename):
             for mx in mxRecordSet:
                 mxLine = domain + ',' + mx
                 print(mxLine)
-                outputFile.write(mxLine)
+                outputFile.write(mxLine + '\n')
                 
     return domainToMxSetMap
 
