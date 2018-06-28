@@ -2,19 +2,52 @@ import dns.resolver
 import sys
 
 def main():
-
-    if len(sys.argv) < 2:
-        sys.exit('First argument missing. Need domain list filename. Ex: ' + sys.argv[0] + ' domains.txt');
-        
-    domainFilename = sys.argv[1]
-
-    domainToMxSetMap = getMxAndWriteFile(domainFilename)
-    graphmlLines = convertToGraphmlLines(domainToMxSetMap)
     
-    writeLinesToFile('domainMx.graphml', graphmlLines)
+    domainFilename = 'NA'
     
-    #gmlLines = convertToGmlLines(domainToMxSetMap)
-    #writeLinesToFile('domainMx.gml', gmlLines)
+    isWriteGraphml = False
+    graphmlOutputFilename = 'NA'
+    
+    isWriteCsv = False
+    csvOutputFilename = 'NA'
+    
+    #At minimum we need a domain file as input
+    if '-domains' in sys.argv:
+        domainFilename = sys.argv[sys.argv.index('-domains') + 1]
+    else:
+        printUsage()
+        sys.exit('Need domain list filename. Ex: ' + sys.argv[0] + ' domains.txt');
+    
+    #Check if graphml output is desired
+    if '-graphml' in sys.argv:
+        isWriteGraphml = True
+        graphmlOutputFilename = sys.argv[sys.argv.index('-graphml') + 1]
+    
+    #Check if csv output is desired
+    if '-csv' in sys.argv:
+        isWriteCsv = True
+        csvOutputFilename = sys.argv[sys.argv.index('-csv') + 1]
+    
+    print('Getting MX data: Started')
+    domainToMxSetMap = getMxMapping(domainFilename)
+    print('Getting MX data: Done')
+    
+    if isWriteGraphml:
+        print('Writing graphml file')
+        graphmlLines = convertToGraphmlLines(domainToMxSetMap)
+        writeLinesToFile(graphmlOutputFilename, graphmlLines)
+    
+    if isWriteCsv:
+        print('Writing csv file')
+        csvLines = convertToCsvLines(domainToMxSetMap)
+        writeLinesToFile(csvOutputFilename, csvLines)
+    
+def printUsage():
+    print(sys.argv[0] + ' Usage')
+    print("\tRead MX domains and print  |  " + sys.argv[0] + ' -domains filename')
+    print("\tWrite output as graphml    |  " + sys.argv[0] + ' -domains filename -graphml outputFilename')
+    print()
+    
     
 def writeLinesToFile(filename, lines):
     outputFile = open(filename,'w')
@@ -174,15 +207,20 @@ def convertToGraphmlLines(domainToMxSetMap):
     
     return lines
     
+def convertToCsvLines(domainToMxSetMap):
+  
+    lines = []
     
-def getMxAndWriteFile(domainsFilename):
-    #Open output file for writing
-    outputFile = open('domainMx.csv','w')
-
-    #Write CSV header line
-    header = 'domain,mx'
-    print(header)
-    outputFile.write(header + '\n')
+    lines.append('domain,mxDomain')
+    
+    for domain,mxSet in domainToMxSetMap.items():
+    
+        for mxDomain in mxSet:
+            lines.append(domain + ',' + mxDomain)
+  
+    return lines
+    
+def getMxMapping(domainsFilename):
 
     domainToMxSetMap = {}
     
@@ -193,7 +231,9 @@ def getMxAndWriteFile(domainsFilename):
       
             #Remove any whitespace from the raw line
             domain = domain.strip()
-            
+    
+            print('Querying for MX record for domain: ' + domain)
+    
             #Use a set to derive unique entries without reinventing the wheel
             mxRecordSet = set()
             
@@ -213,15 +253,7 @@ def getMxAndWriteFile(domainsFilename):
                 
             domainToMxSetMap[domain] = mxRecordSet
                 
-            #Write the unique entries    
-            for mx in mxRecordSet:
-                mxLine = domain + ',' + mx
-                print(mxLine)
-                outputFile.write(mxLine + '\n')
-                
     return domainToMxSetMap
-
-    outputFile.close()
 
 if __name__== "__main__":
     main()            
