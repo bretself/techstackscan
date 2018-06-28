@@ -1,7 +1,14 @@
 import dns.resolver
+import sys
 
 def main():
-    domainToMxSetMap = getMxAndWriteFile('domains.txt')
+
+    if len(sys.argv) < 2:
+        sys.exit('First argument missing. Need domain list filename. Ex: ' + sys.argv[0] + ' domains.txt');
+        
+    domainFilename = sys.argv[1]
+
+    domainToMxSetMap = getMxAndWriteFile(domainFilename)
     graphmlLines = convertToGraphmlLines(domainToMxSetMap)
     
     writeLinesToFile('domainMx.graphml', graphmlLines)
