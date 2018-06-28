@@ -90,7 +90,8 @@ def getDirectedGraph(domainToMxSetMap):
         domainSet.update(mxSet)
     
     for domain in domainSet:
-        DG.add_node(domain)
+        nodeType = 'domain' if domain in domainKeys else 'mxDomain'
+        DG.add_node(domain, type=nodeType, label=domain)
     
     #Add edges
     for domain,mxSet in domainToMxSetMap.items():
