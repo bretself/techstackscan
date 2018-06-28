@@ -45,8 +45,10 @@ def main():
     
 def printUsage():
     print(sys.argv[0] + ' Usage')
-    print("\tRead MX domains and print  |  " + sys.argv[0] + ' -domains filename')
-    print("\tWrite output as graphml    |  " + sys.argv[0] + ' -domains filename -graphml outputFilename')
+    print("\tRead MX domains and print          |  " + sys.argv[0] + ' -domains filename')
+    print("\tWrite output as graphml            |  " + sys.argv[0] + ' -domains filename -graphml outputFilename')
+    print("\tWrite output as csv                |  " + sys.argv[0] + ' -domains filename -csv outputFilename')
+    print("\tWrite output as graphml and csv    |  " + sys.argv[0] + ' -domains filename -graphml outputFilename -csv outputFilename')
     print()
     
     
