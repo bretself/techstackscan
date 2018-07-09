@@ -118,20 +118,30 @@ def getMxMapping(domainsFilename):
             mxRecordSet = set()
             
             #Query for DNS MX records. Loop over each Name object. 
-            for mxData in dns.resolver.query(domain, 'MX'):
-                
-                #Split into TLD and name. Goal here is to remove specific subdomains
-                splitMxExchange = mxData.exchange.split(3)
-                
-                #Some domains are all uppercase. Some lower. Let's make 
-                #them the same here
-                mxDomain = splitMxExchange[1].to_text(True).lower()
-                
-                #Add to the set. Will write to the file later after using the set
-                #to derive only unique entries
-                mxRecordSet.add(mxDomain)
-                
-            domainToMxSetMap[domain] = mxRecordSet
+            try:
+                for mxData in dns.resolver.query(domain, 'MX'):
+                    
+                    #Only split and use records that look like a domain name
+                    if '.' in mxData.exchange.to_text(True):
+                                    
+                        #Split into TLD and name. Goal here is to remove specific subdomains
+                        splitMxExchange = mxData.exchange.split(3)
+                        
+                        #Some domains are all uppercase. Some lower. Let's make 
+                        #them the same here
+                        mxDomain = splitMxExchange[1].to_text(True).lower()
+                        
+                        #Add to the set. Will write to the file later after using the set
+                        #to derive only unique entries
+                        mxRecordSet.add(mxDomain)
+                    else:
+                        print('Could not determine if this was a valid domain name. Found: ' + mxData.exchange.to_text(True));
+                    
+                domainToMxSetMap[domain] = mxRecordSet;
+            except KeyError:
+                print('Could not get MX record for: ' + domain + '. Received: KeyError');
+            except dns.resolver.NoAnswer:
+                print('Could not get MX record for: ' + domain + '. Received: NoAnswer');
                 
     return domainToMxSetMap
 
